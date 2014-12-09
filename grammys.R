@@ -6,6 +6,7 @@ d <- read.csv("./data/grammysTo2014.csv")
 
 
 # Munge
+# Remove the names of band members from the parentheses
 d$WinnersBand <- gsub( " *\\(.*?\\) *", "", d$Winners)
 
 
@@ -34,3 +35,18 @@ d2$Tab <- 1
 
 d3 <- aggregate(Tab ~ artistFinal, d2, sum ) # makes a two-way table
 d3 <- d3[order(-d3$Tab),] 
+
+
+
+
+
+### top
+top <- read.delim("~/GitHub/Grammys/data/top.csv")
+males <- top[1:22,]
+females <- top[23:39,]
+
+p1 <- hist(males$Grammys)
+p2 <- hist(females$Grammys)
+
+plot( p1, col=rgb(0,0,1,1/4), xlim=c(0,30))  # first histogram
+plot( p2, col=rgb(1,0,0,1/4), xlim=c(0,30), add=T)  # second
