@@ -12,6 +12,8 @@ d <- read.csv("./data/grammysTo2014.csv")
 # Remove the names of band members from the parentheses
 d$WinnersBand <- gsub( " *\\(.*?\\) *", "", d$Winners)
 
+d$Tab <- 1
+
 
 # create a df of artists
 d$isArtist <- grepl("artist", d$Winners)
@@ -34,7 +36,6 @@ trim <- function (x) gsub("^\\s+|\\s+$", "", x)
 
 d2$artistFinal <- trim(d2$artistFinal)
 
-d2$Tab <- 1
 
 d3 <- aggregate(Tab ~ artistFinal, d2, sum ) # makes a two-way table
 d3 <- d3[order(-d3$Tab),] 
@@ -61,14 +62,21 @@ topTop <- top[1:25,]
 
 N <- read.csv("./data/nominations.csv", stringsAsFactors = F)
 N[6,1] <- "Beyonce"
+N[22,1] <- "Bjork"
 
 for (i in 1:37 ) {
   if(N[i,2] == "") N[i,2] = N[i-1,2]
 }
 
-mostN <- N[1:15,]
+N$Nominations <- as.numeric(N$Nominations)
 
-mostN$Nominations <- as.numeric(mostN$Nominations)
+
+mostN <- N[1:15,] # Most nominations
+
+Nwo <- N[18:37,] # most without winning
+
+
+
 
 
 
@@ -105,6 +113,17 @@ ggplot(mostN, aes(x=reorder(mostN$Artist, mostN$Nominations), y=mostN$Nomination
 ggsave("./plots/grammyNoms.png", dpi=300, width=5, height=5)
 
 
+ggplot(Nwo, aes(x=reorder(Nwo$Artist, Nwo$Nominations), y=Nwo$Nominations)) + 
+  geom_bar(colour="white", fill=purple) + 
+  my.theme + ggtitle("Most Nominations Without An Award") + xlab(NULL) +
+  ylab("Nominations as of 57th Grammy Awards") + 
+  geom_text(aes(label = Nwo$Nominations), size = 2, color= "grey", hjust = -.25)+
+  coord_flip() +
+  scale_y_continuous(labels = comma)
+
+ggsave("./plots/grammyNomswo.png", dpi=300, width=5, height=5)
+
+
 ggplot(topTop, aes(x=reorder(topTop$Artist, topTop$Grammys), y=topTop$Grammys)) + 
   geom_bar(colour="white", fill=lime_green) + 
   my.theme + ggtitle("Top 25 Individual Grammy Winners") + xlab(NULL) +
@@ -114,3 +133,14 @@ ggplot(topTop, aes(x=reorder(topTop$Artist, topTop$Grammys), y=topTop$Grammys)) 
   scale_y_continuous(labels = comma)
 
 ggsave("./plots/grammyWins.png", dpi=300, width=5, height=5)
+
+
+
+t <- aggregate(d$Tab ~ d$Year, FUN=sum)
+ggplot(t, aes(x=t$'d$Year', y=t$'d$Tab')) + 
+  geom_line(colour=lime_green, size = 2) + 
+  my.theme + ggtitle("Grammy Award Categories Over Time") + xlab("Year") +
+  ylab("Grammy Awards Per Year") + 
+  scale_y_continuous(labels = comma)
+
+ggsave("./plots/grammyAwards.png", dpi=300, width=5, height=5)
