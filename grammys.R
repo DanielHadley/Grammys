@@ -44,20 +44,22 @@ d3 <- d3[order(-d3$Tab),]
 
 
 #### top wikipedia ####
-top <- read.delim("~/GitHub/Grammys/data/top.csv")
+top <- read.delim("./data/top.csv", stringsAsFactors = F)
+top$isFemale <- FALSE
+top$isFemale[23:39] <- TRUE
 males <- top[1:22,]
 females <- top[23:39,]
 
-p1 <- hist(males$Grammys)
-p2 <- hist(females$Grammys)
+top[23,2] <- "Alison Krauss"
+top[25,2] <- "Beyonce"
 
-plot( p1, col=rgb(0,0,1,1/4), xlim=c(0,30))  # first histogram
-plot( p2, col=rgb(1,0,0,1/4), xlim=c(0,30), add=T)  # second
+topTop <- top[1:25,]
+
 
 
 ## Nominations http://en.wikipedia.org/wiki/Grammy_Award_records
 
-N <- read.csv("./data//nominations.csv", stringsAsFactors = F)
+N <- read.csv("./data/nominations.csv", stringsAsFactors = F)
 N[6,1] <- "Beyonce"
 
 for (i in 1:37 ) {
@@ -65,23 +67,18 @@ for (i in 1:37 ) {
 }
 
 mostN <- N[1:15,]
-mostN$NominationsFif <- mostN$Nominations
-mostN[3,3] = 68
-mostN[4,3] = 63
-mostN[5,3] = 62
-mostN[6,3] = 61
-mostN[7,3] = 55
-mostN[9,3] = 48
-mostN[12,3] = 45
-mostN[13,3] = 43
-mostN[14,3] = 43
 
-mostN$NominationsFif <- as.numeric(mostN$NominationsFif)
+mostN$Nominations <- as.numeric(mostN$Nominations)
 
 
 
 #### Visualize ####
+lime_green = "#2ecc71"
+soft_blue = "#3498db"
+pinkish_red = "#e74c3c"
 purple = "#9b59b6"
+teele = "#1abc9c"
+nice_blue = "#2980b9"
 
 my.theme <- 
   theme(#plot.background = element_rect(fill="white"), # Remove background
@@ -97,12 +94,23 @@ my.theme <-
   )
 
 
-ggplot(mostN, aes(x=reorder(mostN$Artist, mostN$NominationsFif), y=mostN$NominationsFif)) + 
+ggplot(mostN, aes(x=reorder(mostN$Artist, mostN$Nominations), y=mostN$Nominations)) + 
   geom_bar(colour="white", fill=purple) + 
-  my.theme + ggtitle("Top 15 Most Grammy Nominations") + xlab(NULL) +
+  my.theme + ggtitle("Top 15 Grammy Nominations") + xlab(NULL) +
   ylab("Nominations as of 57th Grammy Awards") + 
-  geom_text(aes(label = mostN$NominationsFif), size = 2, color= "grey", hjust = -.25)+
+  geom_text(aes(label = mostN$Nominations), size = 2, color= "grey", hjust = -.25)+
   coord_flip() +
   scale_y_continuous(labels = comma)
 
 ggsave("./plots/grammyNoms.png", dpi=300, width=5, height=5)
+
+
+ggplot(topTop, aes(x=reorder(topTop$Artist, topTop$Grammys), y=topTop$Grammys)) + 
+  geom_bar(colour="white", fill=lime_green) + 
+  my.theme + ggtitle("Top 25 Individual Grammy Winners") + xlab(NULL) +
+  ylab("Grammys as of 56th Grammy Awards") + 
+  geom_text(aes(label = topTop$Grammys), size = 2, color= "grey", hjust = -.25)+
+  coord_flip() +
+  scale_y_continuous(labels = comma)
+
+ggsave("./plots/grammyWins.png", dpi=300, width=5, height=5)
